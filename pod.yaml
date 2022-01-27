@@ -1,0 +1,68 @@
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes.
+#
+# Created with podman-3.4.2
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2022-01-26T08:03:55Z"
+  labels:
+    app: loki
+  name: loki-demo
+spec:
+  containers:
+  - args:
+    - -config.file=/mnt/config/loki-config.yaml
+    name: loki
+    image: docker.io/grafana/loki:2.4.2
+    ports:
+    - containerPort: 3100
+      hostPort: 3100
+    securityContext:
+      capabilities:
+        drop:
+        - CAP_MKNOD
+        - CAP_NET_RAW
+        - CAP_AUDIT_WRITE
+    volumeMounts:
+    - mountPath: /mnt/config
+      name: local-dir
+  - args:
+    - -config.file=/mnt/config/promtail-config.yaml
+    image: docker.io/grafana/promtail:2.4.2
+    name: promtail
+    securityContext:
+      capabilities:
+        drop:
+        - CAP_MKNOD
+        - CAP_NET_RAW
+        - CAP_AUDIT_WRITE
+    volumeMounts:
+    - mountPath: /var/log
+      name: var-log-host-0
+    - mountPath: /mnt/config
+      name: local-dir
+  - name: grafana
+    image: docker.io/grafana/grafana:8.3.4
+    ports:
+    - containerPort: 3000
+      hostPort: 3000
+    securityContext:
+      capabilities:
+        drop:
+        - CAP_MKNOD
+        - CAP_NET_RAW
+        - CAP_AUDIT_WRITE
+    volumeMounts:
+    - mountPath: /mnt/config
+      name: local-dir      
+  volumes:
+  - hostPath:
+      path: /home/randy/Projekte/ikea/loki-demo
+      type: Directory
+    name: local-dir
+  - hostPath:
+      path: /var/log
+      type: Directory
+    name: var-log-host-0
+
