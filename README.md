@@ -76,3 +76,16 @@ The request body:
 
 The action is a HTTP POST to http://127.0.0.1:3100/loki/api/v1/push
 
+## Logql
+
+As soon as I have performed the HTTP POST above using postman, I can query the loglines using [LogQL](https://grafana.com/docs/loki/latest/logql/):
+
+```logql
+{compartment="eu"}
+```
+
+It is important to understand that the labels are just mappings to logfiles or tables. We should use only very few labels an use filters for further reduction of the result e.g.:
+
+```
+{compartment="eu"} |="trans_id: 7469262937"
+```
